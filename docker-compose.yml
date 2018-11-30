@@ -1,0 +1,35 @@
+version: "3.6"
+services:
+   gitlab:
+     image: 10.0.0.1:5000/gitlab/gitlab-ce:latest
+     hostname: 10.0.0.1
+     ports:
+       - "22:22"
+       - "80:80"
+       - "443:443"
+     volumes:
+       - gitlab_data:/var/opt/gitlab
+       - gitlab_logs:/var/log/gitlab
+       - gitlab_config:/etc/gitlab
+     environment:
+       GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
+     configs:
+       - source: gitlab
+         target: /omnibus_config.rb
+     secrets:
+       - gitlab_root_password
+   gitlab-runner:
+     image: 10.0.0.1:5000/gitlab/gitlab-runner:alpine
+     deploy:
+       mode: replicated
+       replicas: 4
+configs:
+   gitlab:
+     file: ./gitlab.rb
+secrets:
+   gitlab_root_password:
+     file: ./root_password.txt
+volumes:
+  gitlab_data:
+  gitlab_logs:
+  gitlab_config:
